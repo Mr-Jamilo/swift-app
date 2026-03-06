@@ -1,0 +1,16 @@
+{
+    1: {
+        "date": "12/02/2026",
+        "time": "12:00",
+        "selfie": "mario",
+        "name": "Jamie",
+        "score": 100
+    },
+    2: {
+        "date": "20/02/2026",
+        "time": "06:00",
+        "selfie": "mario",
+        "name": "Luigi",
+        "score": 200
+    }
+}

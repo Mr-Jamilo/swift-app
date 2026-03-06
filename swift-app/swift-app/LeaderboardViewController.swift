@@ -18,7 +18,7 @@ class LeaderboardViewController: UIViewController, UITableViewDataSource, UITabl
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath as IndexPath)
         let scores = appDelegate.dataModel.getAllScores()
-        cell.imageView?.image = scores[indexPath.row].getSelfie()
+        cell.imageView?.image = UIImage(named:scores[indexPath.row].getSelfieName())
         cell.textLabel?.text = scores[indexPath.row].getName()
         cell.detailTextLabel?.text = "\(scores[indexPath.row].getScore())"
         return cell
