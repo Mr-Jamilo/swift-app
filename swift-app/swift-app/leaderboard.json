@@ -1,16 +1,18 @@
-{
-    1: {
+[
+    {
+        "id": 1,
         "date": "12/02/2026",
         "time": "12:00",
-        "selfie": "mario",
+        "selfie_name": "mario",
         "name": "Jamie",
         "score": 100
     },
-    2: {
+    {
+        "id": 2,
         "date": "20/02/2026",
         "time": "06:00",
-        "selfie": "mario",
+        "selfie_name": "mario",
         "name": "Luigi",
         "score": 200
     }
-}
+]
