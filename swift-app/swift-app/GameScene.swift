@@ -52,23 +52,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         floor.physicsBody?.isDynamic = false
         floor.name = "floor"
         addChild(floor)
+        
+        scoreLabel = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
+        scoreLabel.text = "Score: 0"
+        scoreLabel.fontSize = 25
+        scoreLabel.fontColor = .white
+        scoreLabel.position = CGPoint(x: size.width / 2, y: size.height - 100)
+        scoreLabel.zPosition = 100
+        addChild(scoreLabel)
     }
     
     func startScoring() {
         let wait = SKAction.wait(forDuration: 1.0)
         let increment = SKAction.run { [weak self] in
-            // Make sure we only add points if the game is still going
             guard let self = self, !self.isGameOver else { return }
             self.score += 1
         }
         let sequence = SKAction.sequence([wait, increment])
-        // Give the action a key so we can easily stop it later
         run(SKAction.repeatForever(sequence), withKey: "scoringAction")
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
         guard !isGameOver else { return }
         isGameOver = true
+        gameStarted = false
         print("collision")
         bloodcell.removeAllActions()
         
@@ -84,6 +91,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !isGameOver {
+            if !gameStarted {
+                gameStarted = true
+                startScoring()
+            }
             bloodcell.removeAllActions()
             let moveUp = SKAction.moveBy(x: 0, y: 100, duration: 0.3)
             bloodcell.run(SKAction.repeatForever(moveUp))
