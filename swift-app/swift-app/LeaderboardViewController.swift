@@ -26,6 +26,7 @@ class LeaderboardViewController: UIViewController, UITableViewDataSource, UITabl
             cell.imageView?.image = UIImage(named:scores[indexPath.row].getSelfieName())
         }
         cell.textLabel?.text = scores[indexPath.row].getName()
+        cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 17.0)
         cell.detailTextLabel?.text = "\(scores[indexPath.row].getScore())"
         return cell
     }

@@ -23,6 +23,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     var nameInput: UITextField?
     var submitBtn: UIButton?
     var selfieName: String?
+    let sound = SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false)
+    
+    var currentWaitDuration: TimeInterval = 3.0
+    let minimumWaitDuration: TimeInterval = 1.0
+    let decreaseAmount: TimeInterval = 0.5
+    
+    var currentPlaqueScale: CGFloat = 1.0
+    let maxPlaqueScale: CGFloat = 2.5
+    let scaleIncreaseAmount: CGFloat = 0.05
+    
+    var currentMoveDuration: TimeInterval = 4.0
+    let minMoveDuration: TimeInterval = 1.0
+    let moveDurationDecrease: TimeInterval = 0.1
     
     override func didMove(to view: SKView) {
         physicsWorld.gravity = .zero
@@ -220,7 +233,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         isGameOver = true
         gameStarted = false
         print("collision")
+        run(sound)
         bloodcell.removeAllActions()
+        removeAction(forKey: "spawningPlaques")
         
         let gameOverLabel = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
         gameOverLabel.text = "GAME OVER"
@@ -235,11 +250,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         takeSelfie()
     }
     
+    func spawnPlaque() {
+        let plaque = SKSpriteNode(imageNamed: "plaque.png")
+        plaque.size = CGSize(width: 50, height: 50)
+        plaque.setScale(currentPlaqueScale)
+        
+        let xPosition = size.width + plaque.size.width
+        let yPosition = bloodcell.position.y
+        plaque.position = CGPoint(x: xPosition, y: yPosition)
+        
+        plaque.physicsBody = SKPhysicsBody(rectangleOf: plaque.size)
+        plaque.physicsBody?.isDynamic = false
+        plaque.physicsBody?.categoryBitMask = borderCategory
+        
+        addChild(plaque)
+        
+        let distanceToMove = size.width + plaque.size.width * 2
+        let moveLeft = SKAction.moveBy(x: -distanceToMove, y: 0, duration: currentMoveDuration)
+        let remove = SKAction.removeFromParent()
+        
+        plaque.run(SKAction.sequence([moveLeft, remove]))
+    }
+    
+    func startSpawningPlaques() {
+        currentWaitDuration = 2.0
+        spawnPlaqueLoop()
+    }
+
+    private func spawnPlaqueLoop() {
+        let spawn = SKAction.run(spawnPlaque)
+        let wait = SKAction.wait(forDuration: currentWaitDuration)
+        let loopAction = SKAction.run { [weak self] in
+            guard let self = self else { return }
+            self.currentWaitDuration = max(self.minimumWaitDuration, self.currentWaitDuration - self.decreaseAmount)
+            self.currentPlaqueScale = min(self.maxPlaqueScale, self.currentPlaqueScale + self.scaleIncreaseAmount)
+            self.currentMoveDuration = max(self.minMoveDuration, self.currentMoveDuration - self.moveDurationDecrease)
+            self.spawnPlaqueLoop()
+        }
+        let sequence = SKAction.sequence([spawn, wait, loopAction])
+        run(sequence, withKey: "spawningPlaques")
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !isGameOver {
             if !gameStarted {
                 gameStarted = true
                 startScoring()
+                startSpawningPlaques()
             }
             bloodcell.removeAllActions()
             let moveUp = SKAction.moveBy(x: 0, y: 100, duration: 0.3)
