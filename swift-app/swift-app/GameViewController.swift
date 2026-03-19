@@ -16,8 +16,4 @@ class GameViewController: UIViewController {
         scene.scaleMode = .resizeFill
         skView.presentScene(scene)
     }
-    
-//    override var supportedInterfaceOrientations: UIInterfaceOrientationMask { return .landscape }
-//    override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { return .landscapeLeft }
-//    override var shouldAutorotate: Bool { return true }
 }

@@ -148,6 +148,7 @@
 				DEVELOPMENT_TEAM = R68BA478J5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "swift-app/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "$(PRODUCT_NAME) Needs Camera Access To Take A Selfie";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -180,6 +181,7 @@
 				DEVELOPMENT_TEAM = R68BA478J5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "swift-app/Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "$(PRODUCT_NAME) Needs Camera Access To Take A Selfie";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;

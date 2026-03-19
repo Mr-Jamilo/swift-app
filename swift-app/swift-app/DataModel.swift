@@ -7,86 +7,75 @@
 import UIKit
 
 class DataModel {
-    private let bundleFileURL = Bundle.main.url(forResource: "leaderboard", withExtension: "json")
-
-    // URL to a writable copy in the app's Documents directory
-    private lazy var documentsFileURL: URL? = {
-        let fm = FileManager.default
-        guard let docs = fm.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
-        return docs.appendingPathComponent("leaderboard.json")
-    }()
-
-    private(set) var allScores: [Score] = []
+    let fileName = "leaderboard"
+    let docDirURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    var fileURL: URL
+    var allScores: [Score] = []
 
     init() {
-        // Load from Documents first if present; otherwise fall back to bundle resource
+        fileURL = docDirURL.appendingPathComponent(fileName).appendingPathExtension("json")
         readFromFile()
     }
 
-    // Writes current scores to a writable file in Documents. Note: you cannot write to the app bundle.
-    open func writeToFile() {
-        guard let targetURL = documentsFileURL else { return }
+    open func writeToFile(name: String, score: Int, selfieName: String?) {
+        readFromFile()
+        let nextID = (allScores.map { $0.id }.max() ?? 0) + 1
+        
+        let now = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yyyy"
+        let dateString = dateFormatter.string(from: now)
+        
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateFormat = "HH:mm"
+        let timeString = timeFormatter.string(from: now)
+        
+        let newScore = Score(
+            id: nextID,
+            date: dateString,
+            time: timeString,
+            selfie_name: selfieName ?? "none",
+            name: name,
+            score: score
+        )
+        allScores.append(newScore)
+        allScores.sort { $0.score > $1.score }
+        
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
         do {
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
-            let data = try encoder.encode(allScores)
-            try data.write(to: targetURL, options: [.atomic])
+            let jsonData = try encoder.encode(allScores)
+            try jsonData.write(to: fileURL, options: .atomic)
+            print("Successfully saved to leaderboard at: \(fileURL.path)")
         } catch {
-            print("[DataModel] Failed to write scores: \(error)")
+            print("Error saving leaderboard: \(error.localizedDescription)")
         }
     }
 
-    // Reads scores from Documents if available; otherwise falls back to the bundled JSON.
     open func readFromFile() {
-        let fm = FileManager.default
-        var sourceURL: URL? = nil
-
-        if let docsURL = documentsFileURL, fm.fileExists(atPath: docsURL.path) {
-            sourceURL = docsURL
-        } else {
-            sourceURL = bundleFileURL
-        }
-
-        guard let url = sourceURL else {
-            print("[DataModel] No leaderboard.json found in bundle or documents.")
-            allScores = []
-            return
-        }
-
-        do {
-            let data = try Data(contentsOf: url)
+        if let existingData = try? Data(contentsOf: fileURL) {
             let decoder = JSONDecoder()
-            let scores = try decoder.decode([Score].self, from: data)
-            self.allScores = scores
-        } catch {
-            print("[DataModel] Failed to read/parse scores: \(error)")
-            self.allScores = []
+            if let savedScores = try? decoder.decode([Score].self, from: existingData) {
+                allScores = savedScores
+            }
         }
     }
 
-    // Returns the resolved file path used for reading (Documents if exists, otherwise bundle)
-    open func getFilePath() -> String? {
-        let fm = FileManager.default
-        if let docsURL = documentsFileURL, fm.fileExists(atPath: docsURL.path) {
-            return docsURL.path
-        }
-        return bundleFileURL?.path
-    }
+    open func getFilePath() -> String? { fileURL.path }
 
     open func getAllScores() -> [Score] {
-        // Ensure we return latest from storage
         readFromFile()
         return allScores
     }
 }
 
 class Score: Codable {
-    private var id: Int
-    private var date: String
-    private var time: String
-    private var selfie_name: String
-    private var name: String
-    private var score: Int
+    var id: Int
+    var date: String
+    var time: String
+    var selfie_name: String
+    var name: String
+    var score: Int
 
     enum CodingKeys: String, CodingKey {
         case id

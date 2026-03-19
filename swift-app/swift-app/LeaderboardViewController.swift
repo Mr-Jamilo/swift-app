@@ -16,9 +16,15 @@ class LeaderboardViewController: UIViewController, UITableViewDataSource, UITabl
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let docDirUrl = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath as IndexPath)
         let scores = appDelegate.dataModel.getAllScores()
-        cell.imageView?.image = UIImage(named:scores[indexPath.row].getSelfieName())
+        if scores[indexPath.row].getSelfieName() != "none" {
+            let imageURL = docDirUrl.appendingPathComponent(scores[indexPath.row].getSelfieName()).appendingPathExtension("jpg")
+            cell.imageView?.image = UIImage(contentsOfFile: imageURL.path)
+        } else {
+            cell.imageView?.image = UIImage(named:scores[indexPath.row].getSelfieName())
+        }
         cell.textLabel?.text = scores[indexPath.row].getName()
         cell.detailTextLabel?.text = "\(scores[indexPath.row].getScore())"
         return cell
