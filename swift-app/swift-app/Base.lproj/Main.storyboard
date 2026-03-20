@@ -153,6 +153,9 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.8374587" green="1" blue="0.8486790058" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                        <connections>
+                                            <segue destination="FuN-EM-gNF" kind="presentation" id="ec8-3a-ROK"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
@@ -173,10 +176,87 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="ICt-gE-gF1"/>
+                    <connections>
+                        <outlet property="tableView" destination="cQq-GS-Fn4" id="KEP-qQ-hWk"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="s9b-kB-y4S" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1589" y="849"/>
+        </scene>
+        <!--Cell Modal View Controller-->
+        <scene sceneID="NDA-A8-HO2">
+            <objects>
+                <viewController id="FuN-EM-gNF" customClass="CellModalViewController" customModule="swift_app" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Xpf-4G-wIj">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NLa-Nw-fke">
+                                <rect key="frame" x="97" y="55" width="199" height="242"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eQd-cW-E8N">
+                                <rect key="frame" x="112" y="482" width="168" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cgc-65-tYu">
+                                <rect key="frame" x="39" y="322" width="131" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WK5-ql-yVh">
+                                <rect key="frame" x="237" y="322" width="140" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s5l-17-eEk">
+                                <rect key="frame" x="123" y="390" width="147" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Jqa-zj-Cof"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <connections>
+                        <outlet property="dateLabel" destination="Cgc-65-tYu" id="i0s-aG-bSN"/>
+                        <outlet property="imageView" destination="NLa-Nw-fke" id="rgL-xd-qnn"/>
+                        <outlet property="nameLabel" destination="s5l-17-eEk" id="2KF-Vz-kND"/>
+                        <outlet property="scoreLabel" destination="eQd-cW-E8N" id="oOB-Fr-n6Z"/>
+                        <outlet property="timeLabel" destination="WK5-ql-yVh" id="QG3-0e-KYZ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="mWN-iS-QtW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1585.4961832061067" y="1570.4225352112676"/>
+        </scene>
+        <!--Powerups-->
+        <scene sceneID="zTo-1Q-6sb">
+            <objects>
+                <viewController id="dCI-Jg-fGw" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Kvw-7I-Y0l">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="fIp-ty-hOL"/>
+                        <color key="backgroundColor" systemColor="systemTealColor"/>
+                        <gestureRecognizers/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Powerups" image="star" catalog="system" id="IFb-SK-781"/>
+                    <navigationItem key="navigationItem" id="dvz-WW-IxR"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="BUN-fb-ora" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2659" y="849"/>
         </scene>
         <!--Plaque-->
         <scene sceneID="JTK-BX-P0B">
@@ -186,9 +266,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="JrN-2c-JtR"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemBrownColor"/>
+                        <gestureRecognizers/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Plaque" id="vgf-YJ-U62"/>
+                    <navigationItem key="navigationItem" id="Rah-Xz-AJ9"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6z2-Gl-7I0" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -197,18 +279,47 @@
         <!--Blood Cell-->
         <scene sceneID="U59-jM-Uem">
             <objects>
-                <viewController title="Blood Cell" id="Hl6-Py-enP" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Blood Cell View Controller" title="Blood Cell" id="Hl6-Py-enP" customClass="BloodCellViewController" customModule="swift_app" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="eLw-gu-Lp2">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Red Blood Cells" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cvw-MX-cB2">
+                                <rect key="frame" x="136" y="20" width="121" height="89"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Red blood cells help transport oxygen around the body. Slowing down this transportation of oxygen " textAlignment="justified" lineBreakMode="wordWrap" numberOfLines="9" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="seh-oG-xdA">
+                                <rect key="frame" x="53" y="83" width="287" height="81"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="81" id="gze-Ei-yWA"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="JoP-vV-5ZR"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="systemPurpleColor"/>
+                        <gestureRecognizers/>
+                        <constraints>
+                            <constraint firstItem="seh-oG-xdA" firstAttribute="centerX" secondItem="eLw-gu-Lp2" secondAttribute="centerX" id="2gA-Ei-NuZ"/>
+                            <constraint firstItem="seh-oG-xdA" firstAttribute="centerX" secondItem="Cvw-MX-cB2" secondAttribute="centerX" id="5MW-B7-ZiZ"/>
+                            <constraint firstItem="JoP-vV-5ZR" firstAttribute="bottom" secondItem="seh-oG-xdA" secondAttribute="bottom" constant="570" id="Ae2-fa-8bh"/>
+                            <constraint firstItem="seh-oG-xdA" firstAttribute="leading" secondItem="JoP-vV-5ZR" secondAttribute="leading" constant="53" id="BQK-7o-Yig"/>
+                            <constraint firstItem="seh-oG-xdA" firstAttribute="top" secondItem="Cvw-MX-cB2" secondAttribute="bottom" constant="-26" id="Bfc-JF-EkK"/>
+                            <constraint firstItem="JoP-vV-5ZR" firstAttribute="trailing" secondItem="seh-oG-xdA" secondAttribute="trailing" constant="53" id="DVK-rv-W2q"/>
+                            <constraint firstItem="Cvw-MX-cB2" firstAttribute="top" secondItem="eLw-gu-Lp2" secondAttribute="top" constant="20" symbolic="YES" id="a6A-WI-53t"/>
+                            <constraint firstItem="Cvw-MX-cB2" firstAttribute="leading" secondItem="JoP-vV-5ZR" secondAttribute="leading" constant="136" id="jJW-li-nSs"/>
+                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Red Blood Cell" id="7Gt-m5-rVS"/>
+                    <navigationItem key="navigationItem" id="q2B-Kk-YM2"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8ye-bl-CCF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2659" y="-580"/>
+            <point key="canvasLocation" x="2658.7786259541986" y="-580.28169014084506"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="LH6-vs-R7Q">
@@ -223,6 +334,7 @@
                     <connections>
                         <segue destination="Hl6-Py-enP" kind="relationship" relationship="viewControllers" id="U4B-lA-aXW"/>
                         <segue destination="Ut3-6z-Z5e" kind="relationship" relationship="viewControllers" id="XJJ-pV-FnY"/>
+                        <segue destination="dCI-Jg-fGw" kind="relationship" relationship="viewControllers" id="qZ0-YT-TeI"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="No4-rv-Mwg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -237,8 +349,18 @@
         <segue reference="nLw-bC-mew"/>
     </inferredMetricsTieBreakers>
     <resources>
+        <image name="star" catalog="system" width="128" height="116"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBrownColor">
+            <color red="0.63529411759999999" green="0.51764705879999995" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemPurpleColor">
+            <color red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemTealColor">
+            <color red="0.18823529410000001" green="0.69019607839999997" blue="0.78039215689999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

@@ -8,6 +8,7 @@
 import UIKit
 
 class LeaderboardViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    @IBOutlet weak var tableView: UITableView!
     let cellIdentifier = "cellIdentifier"
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
@@ -29,6 +30,22 @@ class LeaderboardViewController: UIViewController, UITableViewDataSource, UITabl
         cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 17.0)
         cell.detailTextLabel?.text = "\(scores[indexPath.row].getScore())"
         return cell
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let modal = segue.destination as? CellModalViewController
+        if let cell = sender as? UITableViewCell,
+           let indexPath = tableView.indexPath(for: cell) {
+            
+            let scores = appDelegate.dataModel.getAllScores()
+            let selectedItem = scores[indexPath.row]
+
+            modal!.userName = selectedItem.getName()
+            modal!.userScore = "\(selectedItem.getScore())"
+            modal!.userDate = selectedItem.getDate()
+            modal!.userSelfieImageName = selectedItem.getSelfieName()
+            modal!.userTime = selectedItem.getTime()
+        }
     }
     
     override func viewDidLoad() {
