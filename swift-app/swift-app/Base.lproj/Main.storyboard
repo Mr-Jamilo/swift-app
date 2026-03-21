@@ -103,6 +103,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="Nv7-5E-it4"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <gestureRecognizers/>
                     </view>
                     <navigationItem key="navigationItem" id="A6C-aF-IoG"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
@@ -240,7 +241,7 @@
             </objects>
             <point key="canvasLocation" x="1585.4961832061067" y="1570.4225352112676"/>
         </scene>
-        <!--Powerups-->
+        <!--Statin-->
         <scene sceneID="zTo-1Q-6sb">
             <objects>
                 <viewController id="dCI-Jg-fGw" sceneMemberID="viewController">
@@ -251,7 +252,7 @@
                         <color key="backgroundColor" systemColor="systemTealColor"/>
                         <gestureRecognizers/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Powerups" image="star" catalog="system" id="IFb-SK-781"/>
+                    <tabBarItem key="tabBarItem" title="Statin" image="star" catalog="system" id="IFb-SK-781"/>
                     <navigationItem key="navigationItem" id="dvz-WW-IxR"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BUN-fb-ora" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

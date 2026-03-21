@@ -13,7 +13,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     
     let bloodcell = SKSpriteNode(imageNamed: "bloodcell")
     let bloodcellCategory:UInt32 = 0x1 << 0;
-    let borderCategory:UInt32 = 0x1 << 1;
+    let dangerCategory:UInt32 = 0x1 << 1;
+    let powerupCategory:UInt32 = 0x1 << 2;
     
     var isGameOver = false
     var gameStarted = false
@@ -38,6 +39,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     let moveDurationDecrease: TimeInterval = 0.1
     
     override func didMove(to view: SKView) {
+        let swipeDown = UISwipeGestureRecognizer(target:self, action: #selector(swipeDownGesture(_ :)))
+        swipeDown.direction = .down
+        let swipeUp = UISwipeGestureRecognizer(target:self, action: #selector(swipeUpGesture(_ :)))
+        swipeUp.direction = .up
+        view.addGestureRecognizer(swipeDown)
+        view.addGestureRecognizer(swipeUp)
+        
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
         
@@ -46,8 +54,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         bloodcell.size = CGSize(width: 50, height: 50)
         bloodcell.physicsBody = SKPhysicsBody(rectangleOf: bloodcell.frame.size)
         bloodcell.physicsBody?.categoryBitMask = bloodcellCategory
-        bloodcell.physicsBody?.collisionBitMask = borderCategory | bloodcellCategory
-        bloodcell.physicsBody?.contactTestBitMask = borderCategory
+        bloodcell.physicsBody?.collisionBitMask = dangerCategory | powerupCategory | bloodcellCategory
+        bloodcell.physicsBody?.contactTestBitMask = dangerCategory | powerupCategory
         bloodcell.physicsBody?.isDynamic = true
         addChild(bloodcell)
         
@@ -56,7 +64,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         ceiling.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         ceiling.position = CGPoint(x: size.width/2, y: size.height - ceilingHeight/2)
         ceiling.physicsBody = SKPhysicsBody(rectangleOf: ceiling.size)
-        ceiling.physicsBody?.categoryBitMask = borderCategory
+        ceiling.physicsBody?.categoryBitMask = dangerCategory
         ceiling.physicsBody?.isDynamic = false
         ceiling.name = "ceiling"
         addChild(ceiling)
@@ -65,7 +73,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         let floor = SKSpriteNode(color: UIColor(red: 188/255, green: 0/255, blue: 0/255, alpha: 1.0), size: CGSize(width: size.width, height: floorHeight))
         floor.position = CGPoint(x: size.width/2, y: floorHeight/2)
         floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
-        floor.physicsBody?.categoryBitMask = borderCategory
+        floor.physicsBody?.categoryBitMask = dangerCategory
         floor.physicsBody?.isDynamic = false
         floor.name = "floor"
         addChild(floor)
@@ -79,6 +87,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         addChild(scoreLabel)
     }
     
+    @objc func swipeDownGesture(_ sender: UISwipeGestureRecognizer) {
+        print("swipe down")
+        if !isGameOver && gameStarted {
+            bloodcell.removeAllActions()
+            let moveUp = SKAction.moveBy(x: 0, y: -50, duration: 0.1)
+            bloodcell.run(SKAction.repeatForever(moveUp))
+        }
+    }
+    
+    @objc func swipeUpGesture(_ sender: UISwipeGestureRecognizer) {
+        print("swipe up")
+        if !isGameOver && gameStarted {
+            bloodcell.removeAllActions()
+            let moveDown = SKAction.moveBy(x: 0, y: 50, duration: 0.1)
+            bloodcell.run(SKAction.repeatForever(moveDown))
+        }
+    }
+    
     @objc func textFieldDidChange(_ textField: UITextField) {
         let text = textField.text ?? ""
         let hasValidText = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -89,19 +115,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     @objc func submitTapped() {
         print("Submit button was pressed!")
         appDelegate.dataModel.writeToFile(name: nameInput!.text!, score: score, selfieName: imageTaken ? selfieName! : nil)
-        
         nameInput?.removeFromSuperview()
         submitBtn?.removeFromSuperview()
         
-        // 3. Create a fresh instance of GameScene
         if let view = self.view {
             let restartScene = GameScene(size: self.size)
             restartScene.scaleMode = self.scaleMode
-            
-            // Optional: Add a smooth transition
             let transition = SKTransition.crossFade(withDuration: 0.5)
-            
-            // Present the new scene
             view.presentScene(restartScene, transition: transition)
         }
     }
@@ -121,7 +141,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         
         let textFieldWidth: CGFloat = 200
         let textFieldHeight: CGFloat = 40
-        
         let xPos = (view.bounds.width - textFieldWidth)/2
         let yPos = (view.bounds.height/2) - 100
         
@@ -230,24 +249,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     
     func didBegin(_ contact: SKPhysicsContact) {
         guard !isGameOver else { return }
-        isGameOver = true
-        gameStarted = false
-        print("collision")
-        run(sound)
-        bloodcell.removeAllActions()
-        removeAction(forKey: "spawningPlaques")
+        let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         
-        let gameOverLabel = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
-        gameOverLabel.text = "GAME OVER"
-        gameOverLabel.fontSize = 50
-        gameOverLabel.fontColor = .white
-        gameOverLabel.position = CGPoint(x: size.width/2, y: size.height - 300)
-        gameOverLabel.zPosition = 100
-                
-        addChild(gameOverLabel)
-        showTextInput()
-        showSubmitBtn()
-        takeSelfie()
+        switch contactMask {
+        case bloodcellCategory | dangerCategory:
+            print("gameover")
+            isGameOver = true
+            gameStarted = false
+            run(sound)
+            bloodcell.removeAllActions()
+            removeAction(forKey: "spawningPlaques")
+            
+            let gameOverLabel = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
+            gameOverLabel.text = "GAME OVER"
+            gameOverLabel.fontSize = 50
+            gameOverLabel.fontColor = .white
+            gameOverLabel.position = CGPoint(x: size.width/2, y: size.height - 300)
+            gameOverLabel.zPosition = 100
+                    
+            addChild(gameOverLabel)
+            showTextInput()
+            showSubmitBtn()
+            takeSelfie()
+        case bloodcellCategory | powerupCategory:
+            print("power-up collected")
+        default:
+            break
+        }
     }
     
     func spawnPlaque() {
@@ -261,7 +289,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         
         plaque.physicsBody = SKPhysicsBody(rectangleOf: plaque.size)
         plaque.physicsBody?.isDynamic = false
-        plaque.physicsBody?.categoryBitMask = borderCategory
+        plaque.physicsBody?.categoryBitMask = dangerCategory
         
         addChild(plaque)
         
@@ -272,9 +300,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         plaque.run(SKAction.sequence([moveLeft, remove]))
     }
     
-    func startSpawningPlaques() {
+    func spawnStatin() {
+        let statin = SKSpriteNode(imageNamed: "statin.png")
+        statin.size = CGSize(width: 30, height: 30)
+        
+        let xPosition = size.width + statin.size.width
+        let yPosition = bloodcell.position.y
+        statin.position = CGPoint(x: xPosition, y: yPosition)
+        
+        statin.physicsBody = SKPhysicsBody(rectangleOf: statin.size)
+        statin.physicsBody?.isDynamic = false
+        statin.physicsBody?.categoryBitMask = powerupCategory
+        
+        addChild(statin)
+        
+        let distanceToMove = size.width + statin.size.width * 2
+        let moveLeft = SKAction.moveBy(x: -distanceToMove, y: 0, duration: currentMoveDuration)
+        let remove = SKAction.removeFromParent()
+        
+        statin.run(SKAction.sequence([moveLeft, remove]))
+    }
+    
+    func spawnUnstablePlaque() {
+        let statin = SKSpriteNode(imageNamed: "unstable_plaque.png")
+        statin.size = CGSize(width: 20, height: 20)
+        
+        let xPosition = size.width + statin.size.width
+        let yPosition = bloodcell.position.y
+        statin.position = CGPoint(x: xPosition, y: yPosition)
+        
+        statin.physicsBody = SKPhysicsBody(rectangleOf: statin.size)
+        statin.physicsBody?.isDynamic = false
+        statin.physicsBody?.categoryBitMask = powerupCategory
+        
+        addChild(statin)
+        
+        let distanceToMove = size.width + statin.size.width * 2
+        let moveLeft = SKAction.moveBy(x: -distanceToMove, y: 0, duration: currentMoveDuration)
+        let remove = SKAction.removeFromParent()
+        
+        statin.run(SKAction.sequence([moveLeft, remove]))
+    }
+    
+    func startSpawning() {
         currentWaitDuration = 2.0
         spawnPlaqueLoop()
+        spawnStatinLoop()
+        spawnUnstablePlaqueLoop()
     }
 
     private func spawnPlaqueLoop() {
@@ -291,12 +363,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         run(sequence, withKey: "spawningPlaques")
     }
     
+    private func spawnStatinLoop() {
+        let spawn = SKAction.run(spawnStatin)
+        let wait = SKAction.wait(forDuration: currentWaitDuration)
+        let loopAction = SKAction.run { [weak self] in
+            guard let self = self else { return }
+            self.currentWaitDuration = max(self.minimumWaitDuration, self.currentWaitDuration - self.decreaseAmount)
+            self.currentPlaqueScale = min(self.maxPlaqueScale, self.currentPlaqueScale + self.scaleIncreaseAmount)
+            self.currentMoveDuration = max(self.minMoveDuration, self.currentMoveDuration - self.moveDurationDecrease)
+            self.spawnStatinLoop()
+        }
+        let sequence = SKAction.sequence([spawn, wait, loopAction])
+        run(sequence, withKey: "spawningStatins")
+    }
+    
+    private func spawnUnstablePlaqueLoop() {
+        let spawn = SKAction.run(spawnPlaque)
+        let wait = SKAction.wait(forDuration: currentWaitDuration)
+        let loopAction = SKAction.run { [weak self] in
+            guard let self = self else { return }
+            self.currentWaitDuration = max(self.minimumWaitDuration, self.currentWaitDuration - self.decreaseAmount)
+            self.currentPlaqueScale = min(self.maxPlaqueScale, self.currentPlaqueScale + self.scaleIncreaseAmount)
+            self.currentMoveDuration = max(self.minMoveDuration, self.currentMoveDuration - self.moveDurationDecrease)
+            self.spawnUnstablePlaqueLoop()
+        }
+        let sequence = SKAction.sequence([spawn, wait, loopAction])
+        run(sequence, withKey: "spawningUnstablePlaques")
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !isGameOver {
             if !gameStarted {
                 gameStarted = true
                 startScoring()
-                startSpawningPlaques()
+                startSpawning()
             }
             bloodcell.removeAllActions()
             let moveUp = SKAction.moveBy(x: 0, y: 100, duration: 0.3)

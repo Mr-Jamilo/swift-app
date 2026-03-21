@@ -31,6 +31,5 @@ class CellModalViewController: UIViewController {
         scoreLabel.text = userScore
         dateLabel.text = userDate
         timeLabel.text = userTime
-        
     }
 }
