@@ -258,7 +258,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
             gameStarted = false
             run(sound)
             bloodcell.removeAllActions()
-            removeAction(forKey: "spawningPlaques")
+            removeAction(forKey: "spawningObjects")
             
             let gameOverLabel = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
             gameOverLabel.text = "GAME OVER"
@@ -278,117 +278,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
-    func spawnPlaque() {
-        let plaque = SKSpriteNode(imageNamed: "plaque.png")
-        plaque.size = CGSize(width: 50, height: 50)
-        plaque.setScale(currentPlaqueScale)
-        
-        let xPosition = size.width + plaque.size.width
-        let yPosition = bloodcell.position.y
-        plaque.position = CGPoint(x: xPosition, y: yPosition)
-        
-        plaque.physicsBody = SKPhysicsBody(rectangleOf: plaque.size)
-        plaque.physicsBody?.isDynamic = false
-        plaque.physicsBody?.categoryBitMask = dangerCategory
-        
-        addChild(plaque)
-        
-        let distanceToMove = size.width + plaque.size.width * 2
-        let moveLeft = SKAction.moveBy(x: -distanceToMove, y: 0, duration: currentMoveDuration)
-        let remove = SKAction.removeFromParent()
-        
-        plaque.run(SKAction.sequence([moveLeft, remove]))
-    }
-    
-    func spawnStatin() {
-        let statin = SKSpriteNode(imageNamed: "statin.png")
-        statin.size = CGSize(width: 30, height: 30)
-        
-        let xPosition = size.width + statin.size.width
-        let yPosition = bloodcell.position.y
-        statin.position = CGPoint(x: xPosition, y: yPosition)
-        
-        statin.physicsBody = SKPhysicsBody(rectangleOf: statin.size)
-        statin.physicsBody?.isDynamic = false
-        statin.physicsBody?.categoryBitMask = powerupCategory
-        
-        addChild(statin)
-        
-        let distanceToMove = size.width + statin.size.width * 2
-        let moveLeft = SKAction.moveBy(x: -distanceToMove, y: 0, duration: currentMoveDuration)
-        let remove = SKAction.removeFromParent()
-        
-        statin.run(SKAction.sequence([moveLeft, remove]))
-    }
-    
-    func spawnUnstablePlaque() {
-        let statin = SKSpriteNode(imageNamed: "unstable_plaque.png")
-        statin.size = CGSize(width: 20, height: 20)
-        
-        let xPosition = size.width + statin.size.width
-        let yPosition = bloodcell.position.y
-        statin.position = CGPoint(x: xPosition, y: yPosition)
-        
-        statin.physicsBody = SKPhysicsBody(rectangleOf: statin.size)
-        statin.physicsBody?.isDynamic = false
-        statin.physicsBody?.categoryBitMask = powerupCategory
-        
-        addChild(statin)
-        
-        let distanceToMove = size.width + statin.size.width * 2
-        let moveLeft = SKAction.moveBy(x: -distanceToMove, y: 0, duration: currentMoveDuration)
-        let remove = SKAction.removeFromParent()
-        
-        statin.run(SKAction.sequence([moveLeft, remove]))
-    }
-    
     func startSpawning() {
         currentWaitDuration = 2.0
-        spawnPlaqueLoop()
-        spawnStatinLoop()
-        spawnUnstablePlaqueLoop()
+        spawnObjectsLoop()
     }
+    
+    func spawnRandomObject() {
+        let randomChoice = Int.random(in: 0...2)
+        let object: (SKSpriteNode & MoveableObject)?
 
-    private func spawnPlaqueLoop() {
-        let spawn = SKAction.run(spawnPlaque)
-        let wait = SKAction.wait(forDuration: currentWaitDuration)
-        let loopAction = SKAction.run { [weak self] in
-            guard let self = self else { return }
-            self.currentWaitDuration = max(self.minimumWaitDuration, self.currentWaitDuration - self.decreaseAmount)
-            self.currentPlaqueScale = min(self.maxPlaqueScale, self.currentPlaqueScale + self.scaleIncreaseAmount)
-            self.currentMoveDuration = max(self.minMoveDuration, self.currentMoveDuration - self.moveDurationDecrease)
-            self.spawnPlaqueLoop()
+        switch randomChoice {
+        case 0:
+            let plaque = Plaque(size: 50, mask: dangerCategory)
+            plaque.setScale(currentPlaqueScale)
+            object = plaque
+        case 1:
+            object = Statin(size: 30, mask: powerupCategory)
+        case 2:
+            object = UnstablePlaque(size: 20, mask: dangerCategory)
+        default:
+            object = nil
         }
-        let sequence = SKAction.sequence([spawn, wait, loopAction])
-        run(sequence, withKey: "spawningPlaques")
+        guard let object = object else { return }
+
+        let floorHeight: CGFloat = 100
+        let ceilingHeight: CGFloat = 100
+        let minY = floorHeight + (object.size.height / 2)
+        let maxY = size.height - ceilingHeight - (object.size.height / 2)
+        let randomY = CGFloat.random(in: minY...maxY)
+        let xPosition = size.width + object.size.width
+        let startPos = CGPoint(x: xPosition, y: randomY)
+
+        object.spawn(in: self, at: startPos, moveDuration: currentMoveDuration)
     }
     
-    private func spawnStatinLoop() {
-        let spawn = SKAction.run(spawnStatin)
+    private func spawnObjectsLoop() {
+        let spawn = SKAction.run(spawnRandomObject)
         let wait = SKAction.wait(forDuration: currentWaitDuration)
+        
         let loopAction = SKAction.run { [weak self] in
             guard let self = self else { return }
             self.currentWaitDuration = max(self.minimumWaitDuration, self.currentWaitDuration - self.decreaseAmount)
             self.currentPlaqueScale = min(self.maxPlaqueScale, self.currentPlaqueScale + self.scaleIncreaseAmount)
             self.currentMoveDuration = max(self.minMoveDuration, self.currentMoveDuration - self.moveDurationDecrease)
-            self.spawnStatinLoop()
+            self.spawnObjectsLoop()
         }
+        
         let sequence = SKAction.sequence([spawn, wait, loopAction])
-        run(sequence, withKey: "spawningStatins")
-    }
-    
-    private func spawnUnstablePlaqueLoop() {
-        let spawn = SKAction.run(spawnPlaque)
-        let wait = SKAction.wait(forDuration: currentWaitDuration)
-        let loopAction = SKAction.run { [weak self] in
-            guard let self = self else { return }
-            self.currentWaitDuration = max(self.minimumWaitDuration, self.currentWaitDuration - self.decreaseAmount)
-            self.currentPlaqueScale = min(self.maxPlaqueScale, self.currentPlaqueScale + self.scaleIncreaseAmount)
-            self.currentMoveDuration = max(self.minMoveDuration, self.currentMoveDuration - self.moveDurationDecrease)
-            self.spawnUnstablePlaqueLoop()
-        }
-        let sequence = SKAction.sequence([spawn, wait, loopAction])
-        run(sequence, withKey: "spawningUnstablePlaques")
+        run(sequence, withKey: "spawningObjects") // Replaced the 3 action keys with 1
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
