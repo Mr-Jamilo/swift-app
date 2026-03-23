@@ -26,7 +26,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     var nameInput: UITextField?
     var submitBtn: UIButton?
     var selfieName: String?
-    let sound = SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false)
+    let explosion = SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false)
+    let chomp = SKAction.playSoundFileNamed("chomp.wav", waitForCompletion: false)
     
     var currentWaitDuration: TimeInterval = 1.5
     let minimumWaitDuration: TimeInterval = 0.5
@@ -256,7 +257,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
             print("gameover")
             isGameOver = true
             gameStarted = false
-            run(sound)
+            run(explosion)
             bloodcell.removeAllActions()
             removeAction(forKey: "spawningObjects")
             
@@ -273,6 +274,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
             takeSelfie()
         case bloodcellCategory | powerupCategory:
             print("power-up collected")
+            run(chomp)
             let powerupBody = (contact.bodyA.categoryBitMask == powerupCategory) ? contact.bodyA : contact.bodyB
             powerupBody.node?.removeFromParent()
             
