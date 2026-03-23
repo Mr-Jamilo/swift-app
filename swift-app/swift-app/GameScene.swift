@@ -11,6 +11,8 @@ import SpriteKit
 class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
+    let floorHeight: CGFloat = 100
+    let ceilingHeight: CGFloat = 100
     let bloodcell = SKSpriteNode(imageNamed: "bloodcell")
     let bloodcellCategory:UInt32 = 0x1 << 0;
     let dangerCategory:UInt32 = 0x1 << 1;
@@ -26,9 +28,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     var selfieName: String?
     let sound = SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false)
     
-    var currentWaitDuration: TimeInterval = 3.0
-    let minimumWaitDuration: TimeInterval = 1.0
-    let decreaseAmount: TimeInterval = 0.5
+    var currentWaitDuration: TimeInterval = 1.5
+    let minimumWaitDuration: TimeInterval = 0.5
+    let decreaseAmount: TimeInterval = 0.1
     
     var currentPlaqueScale: CGFloat = 1.0
     let maxPlaqueScale: CGFloat = 2.5
@@ -59,7 +61,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         bloodcell.physicsBody?.isDynamic = true
         addChild(bloodcell)
         
-        let ceilingHeight: CGFloat = 100
         let ceiling = SKSpriteNode(color: UIColor(red: 188/255, green: 0/255, blue: 0/255, alpha: 1.0), size: CGSize(width: size.width, height: ceilingHeight))
         ceiling.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         ceiling.position = CGPoint(x: size.width/2, y: size.height - ceilingHeight/2)
@@ -69,7 +70,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         ceiling.name = "ceiling"
         addChild(ceiling)
 
-        let floorHeight: CGFloat = 100
         let floor = SKSpriteNode(color: UIColor(red: 188/255, green: 0/255, blue: 0/255, alpha: 1.0), size: CGSize(width: size.width, height: floorHeight))
         floor.position = CGPoint(x: size.width/2, y: floorHeight/2)
         floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
@@ -273,18 +273,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
             takeSelfie()
         case bloodcellCategory | powerupCategory:
             print("power-up collected")
+            let powerupBody = (contact.bodyA.categoryBitMask == powerupCategory) ? contact.bodyA : contact.bodyB
+            powerupBody.node?.removeFromParent()
+            
+            currentWaitDuration = 1.5
+            currentPlaqueScale = 1.0
+            currentMoveDuration = 4.0
         default:
             break
         }
     }
     
     func startSpawning() {
-        currentWaitDuration = 2.0
+        currentWaitDuration = 1.5
         spawnObjectsLoop()
     }
     
-    func spawnRandomObject() {
-        let randomChoice = Int.random(in: 0...2)
+    func calcRandPosition(objSize: CGSize) -> CGPoint {
+        let minY = floorHeight + (objSize.height / 2)
+        let maxY = size.height - ceilingHeight - (objSize.height / 2)
+        let randomY = CGFloat.random(in: minY...maxY)
+        let xPosition = size.width + objSize.width
+        return CGPoint(x: xPosition, y: randomY)
+    }
+    
+    func spawnPlaqueLoop() {
+        let randomChoice = Int.random(in: 0...1)
         let object: (SKSpriteNode & MoveableObject)?
 
         switch randomChoice {
@@ -293,27 +307,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
             plaque.setScale(currentPlaqueScale)
             object = plaque
         case 1:
-            object = Statin(size: 30, mask: powerupCategory)
-        case 2:
             object = UnstablePlaque(size: 20, mask: dangerCategory)
         default:
             object = nil
         }
         guard let object = object else { return }
+        object.spawn(in: self, at: calcRandPosition(objSize: object.size), moveDuration: currentMoveDuration)
+    }
+    
+    func spawnStatinLoop() {
+        let statinChance = Int.random(in: 0...9)
+        let object: (SKSpriteNode & MoveableObject)?
 
-        let floorHeight: CGFloat = 100
-        let ceilingHeight: CGFloat = 100
-        let minY = floorHeight + (object.size.height / 2)
-        let maxY = size.height - ceilingHeight - (object.size.height / 2)
-        let randomY = CGFloat.random(in: minY...maxY)
-        let xPosition = size.width + object.size.width
-        let startPos = CGPoint(x: xPosition, y: randomY)
-
-        object.spawn(in: self, at: startPos, moveDuration: currentMoveDuration)
+        switch statinChance {
+        case 0:
+            object = Statin(size: 30, mask: powerupCategory)
+        default:
+            object = nil
+        }
+        guard let object = object else { return }
+        object.spawn(in: self, at: calcRandPosition(objSize: object.size), moveDuration: currentMoveDuration)
     }
     
     private func spawnObjectsLoop() {
-        let spawn = SKAction.run(spawnRandomObject)
+        let spawnPlaque = SKAction.run(spawnPlaqueLoop)
+        let spawnStatin = SKAction.run(spawnStatinLoop)
         let wait = SKAction.wait(forDuration: currentWaitDuration)
         
         let loopAction = SKAction.run { [weak self] in
@@ -324,8 +342,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
             self.spawnObjectsLoop()
         }
         
-        let sequence = SKAction.sequence([spawn, wait, loopAction])
-        run(sequence, withKey: "spawningObjects") // Replaced the 3 action keys with 1
+        let sequence = SKAction.sequence([spawnPlaque, spawnStatin, wait, loopAction])
+        run(sequence, withKey: "spawningObjects")
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
