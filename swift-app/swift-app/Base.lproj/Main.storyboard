@@ -25,10 +25,10 @@
             </objects>
             <point key="canvasLocation" x="-70" y="113"/>
         </scene>
-        <!--Home View Controller-->
+        <!--View Controller-->
         <scene sceneID="H7g-jh-eur">
             <objects>
-                <viewController storyboardIdentifier="HomeViewController" id="qcc-eH-KjC" customClass="HomeViewController" customModule="swift_app" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="HomeViewController" id="qcc-eH-KjC" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="v9M-il-Vin">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="793"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

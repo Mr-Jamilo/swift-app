@@ -18,6 +18,7 @@ class CellModalViewController: UIViewController {
     var userDate: String?
     var userTime: String?
     let docDirUrl = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         if userSelfieImageName != "none" {
