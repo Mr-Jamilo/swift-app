@@ -4,8 +4,10 @@
 //
 //  Created by Jamie Lo on 21/02/2026.
 //
+
 import UIKit
 
+/// Model for reading and writing to file
 class DataModel {
     let fileName = "leaderboard"
     let docDirURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
@@ -17,6 +19,11 @@ class DataModel {
         readFromFile()
     }
 
+    /// Appends a score and saves the leaderboard to file
+    /// - Parameters:
+    ///   - name: Player display name
+    ///   - score: Player score value
+    ///   - selfieName: Optional image filename stored separately, or nil
     open func writeToFile(name: String, score: Int, selfieName: String?) {
         readFromFile()
         let nextID = (allScores.map { $0.id }.max() ?? 0) + 1
@@ -52,6 +59,7 @@ class DataModel {
         }
     }
 
+    /// Loads leaderboard from disk if present; leaves cache unchanged if decoding fails
     open func readFromFile() {
         if let existingData = try? Data(contentsOf: fileURL) {
             let decoder = JSONDecoder()
@@ -61,14 +69,17 @@ class DataModel {
         }
     }
 
+    /// Returns the filesystem path to leaderboard.json (for debugging/diagnostics)
     open func getFilePath() -> String? { fileURL.path }
 
+    /// Returns the latest leaderboard by reloading from disk first
     open func getAllScores() -> [Score] {
         readFromFile()
         return allScores
     }
 }
 
+/// Codable Score model for a single JSON leaderboard entry
 class Score: Codable {
     var id: Int
     var date: String
@@ -77,6 +88,7 @@ class Score: Codable {
     var name: String
     var score: Int
 
+    // Explicit coding keys to preserve current JSON field names
     enum CodingKeys: String, CodingKey {
         case id
         case date
@@ -94,6 +106,7 @@ class Score: Codable {
         self.name = name
         self.score = score
     }
+    // Getters
     public func getId() -> Int {return id}
     public func getDate() -> String {return date}
     public func getTime() -> String {return time}
@@ -101,3 +114,4 @@ class Score: Codable {
     public func getName() -> String {return name}
     public func getScore() -> Int {return score}
 }
+

@@ -4,14 +4,17 @@
 //
 //  Created by Jamie Lo on 20/03/2026.
 //
+
 import UIKit
 
+/// Modal view controller for displaying details for a selected entry in the leaderboard
 class CellModalViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var scoreLabel: UILabel!
+    
     var userName: String?
     var userScore: String?
     var userSelfieImageName: String?
@@ -19,6 +22,7 @@ class CellModalViewController: UIViewController {
     var userTime: String?
     let docDirUrl = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     
+    // Populates elements with the passed values
     override func viewDidLoad() {
         super.viewDidLoad()
         if userSelfieImageName != "none" {
@@ -27,7 +31,6 @@ class CellModalViewController: UIViewController {
         } else {
             imageView.image = UIImage(named:userSelfieImageName!)
         }
-        
         nameLabel.text = userName
         scoreLabel.text = userScore
         dateLabel.text = userDate

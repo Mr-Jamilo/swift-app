@@ -8,7 +8,9 @@
 import UIKit
 import SpriteKit
 
+/// A view controller for displaying the game scene
 class GameViewController: UIViewController {
+    /// Creates and loads the game scene
     override func viewDidLoad() {
         super.viewDidLoad()
         let scene = GameScene(size: view.bounds.size)

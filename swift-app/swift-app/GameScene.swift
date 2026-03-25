@@ -4,31 +4,42 @@
 //
 //  Created by Jamie Lo on 06/03/2026.
 //
-
 import Foundation
 import SpriteKit
 
+/// SpriteKit scene - handles everything related to the game
 class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
+    // Heights for collision boundaries at top and bottom of the playfield
     let floorHeight: CGFloat = 100
     let ceilingHeight: CGFloat = 100
+    
+    // Player node and physics categories
     let bloodcell = SKSpriteNode(imageNamed: "bloodcell")
     let bloodcellCategory:UInt32 = 0x1 << 0;
     let dangerCategory:UInt32 = 0x1 << 1;
     let powerupCategory:UInt32 = 0x1 << 2;
     
+    // Game state flags
     var isGameOver = false
     var gameStarted = false
+    
+    // Score label reflects current score in real time
     var score = 0 { didSet { scoreLabel.text = "Score: \(score)" } }
     var scoreLabel: SKLabelNode!
+    
+    // UI elements for name entry and submission after game over
     var imageTaken = false
     var nameInput: UITextField?
     var submitBtn: UIButton?
     var selfieName: String?
+    
+    // Sound effects
     let explosion = SKAction.playSoundFileNamed("explosion.wav", waitForCompletion: false)
     let chomp = SKAction.playSoundFileNamed("chomp.wav", waitForCompletion: false)
     
+    // Dynamic difficulty parameters that tighten over time
     var currentWaitDuration: TimeInterval = 1.5
     let minimumWaitDuration: TimeInterval = 0.5
     let decreaseAmount: TimeInterval = 0.1
@@ -42,6 +53,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
     let moveDurationDecrease: TimeInterval = 0.1
     
     override func didMove(to view: SKView) {
+        // Input: swipe gestures to move player up/down
         let swipeDown = UISwipeGestureRecognizer(target:self, action: #selector(swipeDownGesture(_ :)))
         swipeDown.direction = .down
         let swipeUp = UISwipeGestureRecognizer(target:self, action: #selector(swipeUpGesture(_ :)))
@@ -49,9 +61,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         view.addGestureRecognizer(swipeDown)
         view.addGestureRecognizer(swipeUp)
         
+        // Physics world configuration
         physicsWorld.gravity = .zero
         physicsWorld.contactDelegate = self
         
+        // Player setup
         backgroundColor = SKColor.red
         bloodcell.position = CGPoint(x:size.width/4, y:size.height/2)
         bloodcell.size = CGSize(width: 50, height: 50)
@@ -62,6 +76,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         bloodcell.physicsBody?.isDynamic = true
         addChild(bloodcell)
         
+        // Ceiling and floor boundaries
         let ceiling = SKSpriteNode(color: UIColor(red: 188/255, green: 0/255, blue: 0/255, alpha: 1.0), size: CGSize(width: size.width, height: ceilingHeight))
         ceiling.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         ceiling.position = CGPoint(x: size.width/2, y: size.height - ceilingHeight/2)
@@ -79,6 +94,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         floor.name = "floor"
         addChild(floor)
         
+        // Score label
         scoreLabel = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
         scoreLabel.text = "Score: 0"
         scoreLabel.fontSize = 25
@@ -88,24 +104,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         addChild(scoreLabel)
     }
     
+    /// Swipe down gesture moves the player down
     @objc func swipeDownGesture(_ sender: UISwipeGestureRecognizer) {
         print("swipe down")
         if !isGameOver && gameStarted {
             bloodcell.removeAllActions()
-            let moveUp = SKAction.moveBy(x: 0, y: -50, duration: 0.1)
-            bloodcell.run(SKAction.repeatForever(moveUp))
-        }
-    }
-    
-    @objc func swipeUpGesture(_ sender: UISwipeGestureRecognizer) {
-        print("swipe up")
-        if !isGameOver && gameStarted {
-            bloodcell.removeAllActions()
-            let moveDown = SKAction.moveBy(x: 0, y: 50, duration: 0.1)
+            let moveDown = SKAction.moveBy(x: 0, y: -50, duration: 0.1)
             bloodcell.run(SKAction.repeatForever(moveDown))
         }
     }
     
+    /// Swipe up gesture moves the player up
+    @objc func swipeUpGesture(_ sender: UISwipeGestureRecognizer) {
+        print("swipe up")
+        if !isGameOver && gameStarted {
+            bloodcell.removeAllActions()
+            let moveUp = SKAction.moveBy(x: 0, y: 50, duration: 0.1)
+            bloodcell.run(SKAction.repeatForever(moveUp))
+        }
+    }
+    
+    /// Enable submit button only if input text is not empty
     @objc func textFieldDidChange(_ textField: UITextField) {
         let text = textField.text ?? ""
         let hasValidText = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -113,6 +132,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         submitBtn?.alpha = hasValidText ? 1.0 : 0.5
     }
     
+    /// Write to file and restart game on submit button tap
     @objc func submitTapped() {
         print("Submit button was pressed!")
         appDelegate.dataModel.writeToFile(name: nameInput!.text!, score: score, selfieName: imageTaken ? selfieName! : nil)
@@ -127,6 +147,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
+    /// Incrementes score by 1 each second
     func startScoring() {
         let wait = SKAction.wait(forDuration: 1.0)
         let increment = SKAction.run { [weak self] in
@@ -137,6 +158,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         run(SKAction.repeatForever(sequence), withKey: "scoringAction")
     }
     
+    /// Show text input over the game scene
     func showTextInput() {
         guard let view = self.view else { return }
         
@@ -160,6 +182,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
+    /// Display a submit button over the game scene
     func showSubmitBtn() {
         guard let view = self.view else { return }
         let buttonWidth: CGFloat = 100
@@ -181,6 +204,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
+    /// Present front camera to take a selfie at game over
     func takeSelfie() {
         guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
             print("Camera is not available on this device.")
@@ -215,12 +239,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
+    // Handles dismissed camera
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
         print("User closed the camera without taking an image.")
         self.imageTaken = false
     }
     
+    /// Compresses and saves the image taken from camera into the documents folder
     func saveImage(image: UIImage) {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             print("Could not compress image.")
@@ -248,6 +274,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
+    /// Handles physics contact events
     func didBegin(_ contact: SKPhysicsContact) {
         guard !isGameOver else { return }
         let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
@@ -286,11 +313,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
+    /// Resets difficulty parameters and starts the recursive spawning loop
     func startSpawning() {
         currentWaitDuration = 1.5
         spawnObjectsLoop()
     }
     
+    /// Calculates a random position offscreen to the right at a Y coordinate between floor and ceiling bounds
+    /// - Parameter objSize: The size of the object to be spawned
+    /// - Returns: CGPoint offscreen right with random Y within play area
     func calcRandPosition(objSize: CGSize) -> CGPoint {
         let minY = floorHeight + (objSize.height / 2)
         let maxY = size.height - ceilingHeight - (objSize.height / 2)
@@ -299,6 +330,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         return CGPoint(x: xPosition, y: randomY)
     }
     
+    /// Spawns plaque objects randomly
     func spawnPlaqueLoop() {
         let randomChoice = Int.random(in: 0...1)
         let object: (SKSpriteNode & MoveableObject)?
@@ -317,6 +349,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         object.spawn(in: self, at: calcRandPosition(objSize: object.size), moveDuration: currentMoveDuration)
     }
     
+    /// Spawns statin power-ups
     func spawnStatinLoop() {
         let statinChance = Int.random(in: 0...9)
         let object: (SKSpriteNode & MoveableObject)?
@@ -331,6 +364,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         object.spawn(in: self, at: calcRandPosition(objSize: object.size), moveDuration: currentMoveDuration)
     }
     
+    /// Recursive loop to spawn plaques and statins
     private func spawnObjectsLoop() {
         let spawnPlaque = SKAction.run(spawnPlaqueLoop)
         let spawnStatin = SKAction.run(spawnStatinLoop)
@@ -348,6 +382,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         run(sequence, withKey: "spawningObjects")
     }
     
+    /// Starts the game and scoring loop on first touch - moves player upward continuously
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !isGameOver {
             if !gameStarted {
@@ -361,6 +396,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
     
+    /// Removes all current actions applied on the player - make them move down
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if !isGameOver {
             bloodcell.removeAllActions()
@@ -370,3 +406,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate, UIImagePickerControllerDeleg
         }
     }
 }
+

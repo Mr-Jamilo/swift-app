@@ -4,18 +4,20 @@
 //
 //  Created by Jamie Lo on 21/02/2026.
 //
-
 import UIKit
 
+/// View controller for displaying the leaderboard
 class LeaderboardViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var tableView: UITableView!
     let cellIdentifier = "cellIdentifier"
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
+    /// Gets the number of rows required for the table
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return appDelegate.dataModel.getAllScores().count
     }
     
+    /// Configurations for each cell
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let docDirUrl = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath as IndexPath)
@@ -32,6 +34,7 @@ class LeaderboardViewController: UIViewController, UITableViewDataSource, UITabl
         return cell
     }
     
+    /// Passes the selected leaderboard entry to the modal detail view before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let modal = segue.destination as? CellModalViewController
         if let cell = sender as? UITableViewCell,
@@ -39,7 +42,6 @@ class LeaderboardViewController: UIViewController, UITableViewDataSource, UITabl
             
             let scores = appDelegate.dataModel.getAllScores()
             let selectedItem = scores[indexPath.row]
-
             modal!.userName = selectedItem.getName()
             modal!.userScore = "\(selectedItem.getScore())"
             modal!.userDate = selectedItem.getDate()
