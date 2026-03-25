@@ -304,7 +304,7 @@
                             <constraint firstItem="fyb-E2-EUg" firstAttribute="top" secondItem="Ssn-CM-OHh" secondAttribute="bottom" constant="39" id="wMc-D6-FMX"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Statin" image="star" catalog="system" id="IFb-SK-781"/>
+                    <tabBarItem key="tabBarItem" title="Statin" id="IFb-SK-781"/>
                     <navigationItem key="navigationItem" id="dvz-WW-IxR"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BUN-fb-ora" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -521,7 +521,6 @@
         <segue reference="nLw-bC-mew"/>
     </inferredMetricsTieBreakers>
     <resources>
-        <image name="star" catalog="system" width="128" height="116"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
